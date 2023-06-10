@@ -44,6 +44,29 @@ app.get('/products', (_req, res) => {
         }).catch((err) => console.log(err))
 })
 
+link = 'https://naturallclub.com/blogs/the-naturall-club-blog/tagged/guide'
+
+app.get('/articles', (_req, res) => {
+    axios(link)
+        .then(response => {
+            const html = response.data
+            const $ = cheerio.load(html)
+            const articles = []
+
+            $('.wizard', html).each(function () {
+                const title = $(this).find('h2 a').text()
+                const url = 'https://www.naturallclub' + $(this).find('h2 a').attr('href')
+                const content = $(this).find('div.blogtext').text()
+                articles.push({
+                    title,
+                    url,
+                    content
+                })
+            })
+            res.json(articles)
+        }).catch((err) => console.log(err))
+})
+
 app.use('/', router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => console.log('server running on PORT ${PORT}'))
